@@ -1,6 +1,20 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
 
+  def login
+
+  end
+
+  def checklog
+    @email=params[:email]
+    @pass=params[:pass]
+    if User.find_by({email:@email}).present? &&User.find_by({email:@email}).pass==@pass
+      redirect_to user_path(User.find_by({email:@email}).id)
+    else
+      render:wrong
+    end
+  end
+
   # GET /users or /users.json
   def index
     @users = User.all
@@ -60,10 +74,11 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+      @posts = @user.posts
     end
 
     # Only allow a list of trusted parameters through.
-    def user_params
-      params.require(:user).permit(:email, :name, :bday,:address,:postal_code)
+    def user_params 
+      params.require(:user).permit(:email,:pass, :name, :bday,:address,:postal_code)
     end
 end
