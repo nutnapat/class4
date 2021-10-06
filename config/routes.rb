@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   get "main" , to:"users#login"
   post "main" , to:"users#checklog"
   get "post" , to:"users#showpost"
+  get "create_fast" , to:"users#create_fast"
 end

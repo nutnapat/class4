@@ -1,7 +1,16 @@
 class PostsController < ApplicationController
   before_action :set_post, only: %i[ show edit update destroy ]
-
+  before_action :loged_in , only: %i[show edit updated]
   # GET /posts or /posts.json
+  
+  def loged_in
+    if(session[:user_id]==@post.user_id )
+      return true
+    else
+      redirect_to main_path , notice: "Please login"
+    end
+  end
+
   def index
     @posts = Post.all
   end
@@ -22,6 +31,7 @@ class PostsController < ApplicationController
   # POST /posts or /posts.json
   def create
     @post = Post.new(post_params)
+    @post.user_id = session[:user_id]
 
     respond_to do |format|
       if @post.save
@@ -51,7 +61,7 @@ class PostsController < ApplicationController
   def destroy
     @post.destroy
     respond_to do |format|
-      format.html { redirect_to posts_url, notice: "Post was successfully destroyed." }
+      format.html { redirect_to @post.user , notice: "Post was successfully destroyed." }
       format.json { head :no_content }
     end
   end

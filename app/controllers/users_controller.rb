@@ -1,15 +1,27 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
+  before_action :loged_in , except: %i[ login checklog new create]
+  
+  def loged_in
+    if(session[:user_id].to_s==params[:id])
+      return true
+    else
+      redirect_to main_path , notice: "Please login"
+    end
+  end
 
   def login
+    session[:user_id] = nil
 
   end
 
   def checklog
     @email=params[:email]
-    @pass=params[:pass]
-    if User.find_by({email:@email}).present? &&User.find_by({email:@email}).pass==@pass
-      redirect_to user_path(User.find_by({email:@email}).id)
+    @pass=params[:password]
+    @user = User.find_by({email:@email})
+    if @user.present? && @user.authenticate(@pass)
+      redirect_to user_path(User.find_by({email:@email}).id) , notice: "login successfully"
+      session[:user_id]=User.find_by({email:@email}).id
     else
       render:wrong
     end
@@ -64,10 +76,12 @@ class UsersController < ApplicationController
   # DELETE /users/1 or /users/1.json
   def destroy
     @user.destroy
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: "User was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    
+    
+  end
+
+  def create_fast
+    @user=User.create(name:params[:name],email:params[:email],password:params[:password])
   end
 
   private
@@ -79,6 +93,6 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params 
-      params.require(:user).permit(:email,:pass, :name, :bday,:address,:postal_code)
+      params.require(:user).permit(:email,:password, :name, :bday,:address,:postal_code)
     end
 end
